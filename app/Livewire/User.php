@@ -34,7 +34,7 @@ class User extends Component
         $simpan->name = $this->nama;
         $simpan->email = $this->email;
         $simpan->password = bcrypt($this->password);
-        $simpan->role = $this->peran;
+        $simpan->peran = $this->peran;
         $simpan->save();
 
         $this->reset('nama', 'email', 'password', 'peran');

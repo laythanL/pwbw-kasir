@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\DetilTransaksi;
 use App\Models\Transaksi as ModelsTransaksi;
+use App\Models\Produk;
 use Livewire\Component;
 
 class Transaksi extends Component
@@ -28,8 +29,10 @@ class Transaksi extends Component
 
         if ($detil) {
             $produk = Produk::find($detil->produk_id);
-            $produk->stok += $detil->jumlah;
-            $produk->save();
+            if ($produk) {
+                $produk->stok += $detil->jumlah;
+                $produk->save();
+            }
         }
 
         $detil->delete();
@@ -39,6 +42,7 @@ class Transaksi extends Component
         $this->transaksiAktif->total = $this->totalSemuaBelanja;
         $this->transaksiAktif->status = 'selesai';
         $this->transaksiAktif->save();
+
         $this->reset();
     }
 
@@ -49,9 +53,11 @@ class Transaksi extends Component
             $detilTransaksis = DetilTransaksi::where('transaksi_id', $this->transaksiAktif->id)->get();
             foreach ($detilTransaksis as $detil) {
                 $produk = Produk::find($detil->produk_id);
-                $produk->stok += $detil->jumlah;
-                $produk->save();
-                $detil->delete();
+                if ($produk) {
+                    $produk->stok += $detil->jumlah;
+                    $produk->save();
+                    $detil->delete();
+                }
             }
 
             $this->transaksiAktif->delete();
@@ -80,15 +86,13 @@ class Transaksi extends Component
             $detil->jumlah += 1;
             $detil->save();
 
-
             $produk->stok -= 1;
             $produk->save();
-
 
             $this->reset('kode');
         }
     }
-public function updatedBayar()
+    public function updatedBayar()
     {
         if ($this->bayar > 0) {
             $this->kembalian = $this->bayar - $this->totalSemuaBelanja;
